@@ -7,6 +7,11 @@ namespace CardGame.Services.Rules
 {
     public class TopCard : Rule
     {
+        public TopCard()
+        {
+            Name = "Top Card";
+        }
+
         public override List<Player> FoundWinner(List<Player> players)
         {
             IEnumerable<Tuple<int, Player>> playersWithTopCard = players.Select(x => new Tuple<int, Player>(x.Cards.Max(i => i.Number), x));

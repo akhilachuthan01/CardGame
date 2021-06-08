@@ -6,6 +6,11 @@ namespace CardGame.Services.Rules
 {
     public class Trail : Rule
     {
+        public Trail()
+        {
+            Name = "Trail";
+        }
+
         public override List<Player> FoundWinner(List<Player> players)
         {
             List<Player> result = new List<Player>();

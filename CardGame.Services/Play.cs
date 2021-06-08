@@ -24,6 +24,8 @@ namespace CardGame.Services
                 Players.Add(player);
             }
 
+            PlayerOperations.ShowCards(Players);
+
             List<Player> winners = Players;
 
             foreach (var rule in Rules)
@@ -31,7 +33,7 @@ namespace CardGame.Services
                 var newWinners = rule.FoundWinner(winners);
                 if (newWinners.Count == 1)
                 {
-                    return $"{newWinners.FirstOrDefault().Name} is winner";
+                    return $"{newWinners.FirstOrDefault().Name} is winner by {rule.Name} rule";
                 }
                 else if (newWinners.Count > 1)
                 {
@@ -52,7 +54,7 @@ namespace CardGame.Services
             }
             if (winners.Count == 1)
             {
-                return $"{winners.FirstOrDefault().Name} is winner";
+                return $"{winners.FirstOrDefault().Name} is winner by final rule";
             }
             return "It's a Tie";
         }

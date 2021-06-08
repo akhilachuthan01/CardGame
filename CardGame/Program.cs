@@ -16,8 +16,9 @@ namespace CardGame
                 Deck = new Deck(),
                 NumberOfPlayers = 4,
                 Rules = new List<Rule>(),
-                Players = new List<Player>()
+                Players = new List<Player>(),
             };
+            play.Deck.CardStack = DeckOperations.GetDeckWithCards();
             play.Rules.Add(new Trail());
             play.Rules.Add(new Sequence());
             play.Rules.Add(new Pair());
@@ -27,7 +28,9 @@ namespace CardGame
 
             string result = play.StartGame();
 
+            Console.WriteLine("---------------------------------");
             Console.WriteLine(result);
+            Console.WriteLine("---------------------------------");
 
             Console.ReadKey();
         }

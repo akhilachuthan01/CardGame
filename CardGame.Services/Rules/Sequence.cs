@@ -7,6 +7,11 @@ namespace CardGame.Services.Rules
 {
     public class Sequence : Rule
     {
+        public Sequence()
+        {
+            Name = "Sequence";
+        }
+
         public override List<Player> FoundWinner(List<Player> players)
         {
             List<Player> result = new List<Player>();
