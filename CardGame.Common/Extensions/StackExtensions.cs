@@ -9,9 +9,9 @@ namespace CardGame.Common.Extensions
         private static readonly Random rand = new Random();
         public static void Shuffle<T>(this Stack<T> stack)
         {
-            var values = stack.ToArray();
+            T[] values = stack.ToArray();
             stack.Clear();
-            foreach (var value in values.OrderBy(x => rand.Next()))
+            foreach (T value in values.OrderBy(x => rand.Next()))
             {
                 stack.Push(value);
             }

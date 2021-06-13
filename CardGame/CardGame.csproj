@@ -6,8 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CardGame.Common\CardGame.Common.csproj" />
-    <ProjectReference Include="..\CardGame.Models\CardGame.Models.csproj" />
     <ProjectReference Include="..\CardGame.Services\CardGame.Services.csproj" />
   </ItemGroup>
 

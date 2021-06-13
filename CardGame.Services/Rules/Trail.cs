@@ -1,27 +1,17 @@
 ﻿using CardGame.Models;
+using CardGame.Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CardGame.Services.Rules
 {
-    public class Trail : Rule
+    public class Trail : IRule
     {
-        public Trail()
-        {
-            Name = "Trail";
-        }
+        public string Name => "Trail";
 
-        public override List<Player> FoundWinner(List<Player> players)
+        public bool IsPassed(List<Card> cards)
         {
-            List<Player> result = new List<Player>();
-            foreach (var player in players)
-            {
-                if (player.Cards.GroupBy(x => x.Number).Any(i => i.Count() == 3))
-                {
-                    result.Add(player);
-                }
-            }
-            return result;
+            return cards.GroupBy(x => x.Number).Any(i => i.Count() == cards.Count);
         }
     }
 }

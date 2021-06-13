@@ -1,4 +1,7 @@
-﻿using CardGame.Models;
+﻿using CardGame.Common.Extensions;
+using CardGame.Models;
+using CardGame.Services.Interfaces;
+using CardGame.Services.Rules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,56 +10,86 @@ namespace CardGame.Services
 {
     public class Play
     {
+        private readonly IPlayerOperations _PlayerOperations;
+        public Play(int numberOfPlayers, List<IRule> rules)
+        {
+            Players = new List<Player>();
+            Rules = new List<IRule>();
+            PlayingDeck = new Deck();
+            NumberOfPlayers = numberOfPlayers;
+            Rules.AddRange(rules);
+            _PlayerOperations = new PlayerOperations();
+        }
+
         public List<Player> Players { get; set; }
-        public List<Rule> Rules { get; set; }
-        public Deck Deck { get; set; }
+        public List<IRule> Rules { get; set; }
+        public Deck PlayingDeck { get; set; }
         public int NumberOfPlayers { get; set; }
 
         public string StartGame()
         {
-            foreach (int i in Enumerable.Range(0, NumberOfPlayers))
-            {
-                Player player = new Player() { Name = $"Player { i + 1 }", Cards = new List<Card>() };
-                for (int c = 0; c < 3; c++)
-                {
-                    player.Cards.Add(Deck.CardStack.Pop());
-                }
-                Players.Add(player);
-            }
-
-            PlayerOperations.ShowCards(Players);
+            PlayingDeck.CardStack = DeckOperations.GetDeckWithCards();
+            PlayingDeck.CardStack.Shuffle();
+            Players = _PlayerOperations.CreatePlayers_DistributeCards(NumberOfPlayers, PlayingDeck);
+            _PlayerOperations.ShowCards(Players);
 
             List<Player> winners = Players;
 
             foreach (var rule in Rules)
             {
-                var newWinners = rule.FoundWinner(winners);
+                List<Player> newWinners = new List<Player>();
+                foreach (var player in Players)
+                {
+                    if (rule.IsPassed(player.Cards))
+                    {
+                        newWinners.Add(player);
+                    }
+                }
                 if (newWinners.Count == 1)
                 {
                     return $"{newWinners.FirstOrDefault().Name} is winner by {rule.Name} rule";
                 }
                 else if (newWinners.Count > 1)
                 {
-                    winners = newWinners;
+                    break;
                 }
             }
 
-            //final rule
-            while (winners.Count > 1 && Deck.CardStack.Count > winners.Count)
-            {
-                List<Tuple<Player, int>> finalPlayers = new List<Tuple<Player, int>>();
-                foreach (var player in winners)
-                {
-                    finalPlayers.Add(new Tuple<Player, int>(player, Deck.CardStack.Pop().Number));
-                }
-                int newTopCard = finalPlayers.Max(i => i.Item2);
-                winners = finalPlayers.Where(i => i.Item2 == newTopCard).Select(x => x.Item1).ToList();
-            }
+            winners = GetWinnerUsingTopCard(winners);
             if (winners.Count == 1)
             {
-                return $"{winners.FirstOrDefault().Name} is winner by final rule";
+                return $"{winners.FirstOrDefault().Name} is winner by top card rule";
             }
             return "It's a Tie";
+        }
+
+        private List<Player> GetWinnerUsingTopCard(List<Player> winners)
+        {
+            bool isFirst = true;
+            //top card rule
+            while (winners.Count > 1 && PlayingDeck.CardStack.Count > winners.Count)
+            {
+                List<Tuple<Player, int>> playersWithTopCard = new List<Tuple<Player, int>>();
+                if (isFirst)
+                {
+                    //on first loop check top card rule
+                    //Make a tuple of all winners with their existing top card
+                    playersWithTopCard = winners.Select(x =>
+                        new Tuple<Player, int>(x, x.Cards.Max(i => i.Number))).ToList();
+                    isFirst = false;
+                }
+                else
+                {
+                    //check for final rule
+                    foreach (var player in winners)
+                    {
+                        playersWithTopCard.Add(new Tuple<Player, int>(player, PlayingDeck.CardStack.Pop().Number));
+                    }
+                }
+                winners = new TopCard().FoundWinner(playersWithTopCard);
+            }
+
+            return winners;
         }
     }
 }

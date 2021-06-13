@@ -1,36 +1,35 @@
 ﻿using CardGame.Models;
+using CardGame.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CardGame.Services.Rules
 {
-    public class Sequence : Rule
+    public class Sequence : IRule
     {
-        public Sequence()
-        {
-            Name = "Sequence";
-        }
+        public string Name => "Sequence";
 
-        public override List<Player> FoundWinner(List<Player> players)
+        public bool IsPassed(List<Card> cards)
         {
-            List<Player> result = new List<Player>();
-            foreach (var player in players)
+            if (new Pair().IsPassed(cards))
             {
-                foreach (Card card in player.Cards)
+                //if pair cards then it's not sequential
+                return false;
+            }
+
+            foreach (Card card in cards)
+            {
+                //if three cards are concecutive, 
+                //then the absolute difference between a card and other two will be one.
+                //In case of Sequence Ace, Two and Three the difference between ace and two will be 12
+                if (cards.Where(i => Math.Abs(i.Number - card.Number) == 1
+                                            || Math.Abs(i.Number - card.Number) == 12).Count() == 2)
                 {
-                    //if three cards are concecutive, 
-                    //then the absolute difference between a card and other two will be one.
-                    //In case of Sequence Ace, Two and Three the difference between ace and two will be 12
-                    if (player.Cards.Where(i => Math.Abs(i.Number - card.Number) == 1
-                                                || Math.Abs(i.Number - card.Number) == 12).Count() == 2)
-                    {
-                        result.Add(player);
-                        break;
-                    }
+                    return true;
                 }
             }
-            return result;
+            return false;
         }
     }
 }
